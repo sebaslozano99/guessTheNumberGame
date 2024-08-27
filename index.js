@@ -1,25 +1,24 @@
-const formEl = document.querySelector("form"); //*** */
-const inputEl = document.getElementById("guess"); //*** */
-const hintEl = document.querySelector(".hint"); //*** */
-const attemptsEl = document.querySelector(".attempts"); //*** */
-const highScoreEl = document.querySelector(".highscore"); //*** */
-const difficultyEl = document.querySelector("#difficulty");//*** */
-const betweenEl = document.querySelector(".between");//*** */
-const submitEl = document.querySelector(".submitBtn"); //*** */
-const againBtnEl = document.querySelector(".againBtn"); //*** */
+const formEl = document.querySelector("form"); 
+const inputEl = document.getElementById("guess"); 
+const hintEl = document.querySelector(".hint"); 
+const attemptsEl = document.querySelector(".attempts"); 
+const highScoreEl = document.querySelector(".highscore"); 
+const difficultyEl = document.querySelector("#difficulty");
+const betweenEl = document.querySelector(".between");
+const submitEl = document.querySelector(".submitBtn"); 
+const againBtnEl = document.querySelector(".againBtn"); 
 const hiddenEl = document.querySelector(".hidden");
 
 
 
-
 let difficulty = "easy";
-let score = [0,0,0]; // index[0] it is SCORE in "easy" mode, index[1] it is SCORE in "medium" mode, index[2] it is SCORE in "hard" mode
+let score = JSON.parse(localStorage.getItem("score")) || [0,0,0]; // index[0] it is SCORE in "easy" mode, index[1] it is SCORE in "medium" mode, index[2] it is SCORE in "hard" mode
+
+highScoreEl.textContent = score[0];// first render, the "highScore" element will display the element in the index 0 of the score array
 let min = 1;
-let max = 50;
+let max = 100;
 let attempts = 10;
 let randomNumber = Math.floor(Math.random() * (max - min) + min);
-
-
 
 
 
@@ -28,27 +27,27 @@ let randomNumber = Math.floor(Math.random() * (max - min) + min);
 difficultyEl.addEventListener("change", (e) => {
 
     difficulty = e.target.value;
-    console.log(difficulty);
 
     if(difficulty === "easy") {
-        max = 50;
-        betweenEl.textContent = "between 1 - 50";
+        max = 100;
         attempts = 10;
+        betweenEl.textContent = `between ${min} - ${max}`;
         attemptsEl.textContent = attempts;
+        inputEl.max = max;
         highScoreEl.textContent = score[0];
     }
     else if(difficulty === "medium"){
-        max = 200;
-        betweenEl.textContent = "between 1 - 200";
+        max = 500;
         attempts = 15;
+        betweenEl.textContent = `between ${min} - ${max}`;
         attemptsEl.textContent = attempts;
         inputEl.max = max;
         highScoreEl.textContent = score[1];
     }
     else if(difficulty === "hard") {
-        max = 1000;
-        betweenEl.textContent = "between 1 - 1000";
+        max = 10000;
         attempts = 20;
+        betweenEl.textContent = `between ${min} - ${max}`;
         attemptsEl.textContent = attempts;
         inputEl.max = max;
         highScoreEl.textContent = score[2];
@@ -58,7 +57,6 @@ difficultyEl.addEventListener("change", (e) => {
 })
 
 
-console.log(attempts);
 
 
 // FUNC -- submit answer --
@@ -70,11 +68,18 @@ function formSubmit(e) {
     e.preventDefault();
 
     const inputElValue = Number(inputEl.value);
-    attempts--;
-
     if(!inputElValue) return;
 
-    difficultyEl.disabled = true;
+    attempts--;
+    difficultyEl.disabled = true; // once They submit the 1st answer, disable the difficulty button - no changes of diff halfway through the game
+
+
+    if(attempts > 0 && inputElValue !== randomNumber){
+        againBtnEl.disabled = true; //We permit the usage of the "againBtn" once user guessed number or depleted attempts
+    }
+    else {
+        againBtnEl.disabled = false;
+    }
 
     if(attempts === 0) {
         hintEl.textContent = "You Lose!";
@@ -98,11 +103,13 @@ function formSubmit(e) {
     }
 
     if(inputElValue === randomNumber) {
-        hintEl.textContent = "You won!";
+        hintEl.textContent = "Congratulations! You won the game!";
         hintEl.style.color = "green";
         inputEl.disabled = true;
         submitEl.disabled = true;
         hiddenEl.textContent = randomNumber;
+        attemptsEl.textContent = attempts;
+
         
 
         if(difficulty === "easy" && attempts > score[0]){
@@ -117,6 +124,8 @@ function formSubmit(e) {
             score[2] = attempts;
             highScoreEl.textContent = score[2];
         }
+
+        localStorage.setItem("score", JSON.stringify(score));
     }
 }
 
@@ -126,6 +135,7 @@ againBtnEl.addEventListener("click", () => {
     randomNumber =  Math.floor(Math.random() * (max - min) + min);
     difficultyEl.disabled = false;
     difficultyEl.value = "easy";
+    highScoreEl.textContent = score[0];
     inputEl.disabled = false;
     submitEl.disabled = false;
     hiddenEl.textContent = "?";
@@ -135,5 +145,7 @@ againBtnEl.addEventListener("click", () => {
 
     attempts = 10;
     attemptsEl.textContent = attempts;
-    betweenEl.textContent = "between 1 - 50";
+    max = 100;
+    inputEl.max = max;
+    betweenEl.textContent = `between ${min} - ${max}`;
 })
