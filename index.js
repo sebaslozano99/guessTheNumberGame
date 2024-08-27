@@ -1,59 +1,139 @@
-const formEl = document.querySelector("form");
-const inputEl = document.getElementById("guess");
-const strongEl = document.querySelector("strong");
-const spanEl = document.querySelector("span");
+const formEl = document.querySelector("form"); //*** */
+const inputEl = document.getElementById("guess"); //*** */
+const hintEl = document.querySelector(".hint"); //*** */
+const attemptsEl = document.querySelector(".attempts"); //*** */
+const highScoreEl = document.querySelector(".highscore"); //*** */
+const difficultyEl = document.querySelector("#difficulty");//*** */
+const betweenEl = document.querySelector(".between");//*** */
+const submitEl = document.querySelector(".submitBtn"); //*** */
+const againBtnEl = document.querySelector(".againBtn"); //*** */
+const hiddenEl = document.querySelector(".hidden");
 
-let attempts = 0; //
-spanEl.innerText = `Attempts: ${attempts}`;
-let min;
-let max;
 
-while(!min){
-    min = window.prompt("Enter the minimum value!");
-}
 
-while(!max) {
-    max = window.prompt("Enter the maximum number!");
-}
 
-const randomNumber = Math.floor(Math.random() * (max - min + 1) + min);
+let difficulty = "easy";
+let score = [0,0,0]; // index[0] it is SCORE in "easy" mode, index[1] it is SCORE in "medium" mode, index[2] it is SCORE in "hard" mode
+let min = 1;
+let max = 50;
+let attempts = 10;
+let randomNumber = Math.floor(Math.random() * (max - min) + min);
 
-formEl.addEventListener("submit", (e) => {
+
+
+
+
+//FUNC --  Select difficulty 
+
+difficultyEl.addEventListener("change", (e) => {
+
+    difficulty = e.target.value;
+    console.log(difficulty);
+
+    if(difficulty === "easy") {
+        max = 50;
+        betweenEl.textContent = "between 1 - 50";
+        attempts = 10;
+        attemptsEl.textContent = attempts;
+        highScoreEl.textContent = score[0];
+    }
+    else if(difficulty === "medium"){
+        max = 200;
+        betweenEl.textContent = "between 1 - 200";
+        attempts = 15;
+        attemptsEl.textContent = attempts;
+        inputEl.max = max;
+        highScoreEl.textContent = score[1];
+    }
+    else if(difficulty === "hard") {
+        max = 1000;
+        betweenEl.textContent = "between 1 - 1000";
+        attempts = 20;
+        attemptsEl.textContent = attempts;
+        inputEl.max = max;
+        highScoreEl.textContent = score[2];
+    }
+
+    randomNumber = Math.floor(Math.random() * (max - min) + min);
+})
+
+
+console.log(attempts);
+
+
+// FUNC -- submit answer --
+
+formEl.addEventListener("submit", formSubmit);
+
+function formSubmit(e) {
+
     e.preventDefault();
-    attempts = attempts + 1;
-    spanEl.innerText = `Attempts: ${attempts}`;
 
-    const inputValue = Number(inputEl.value);
-    if(!inputValue) return;
+    const inputElValue = Number(inputEl.value);
+    attempts--;
 
-    if(inputValue > max) {
-        alert(`You can't enter a value greater than ${max}`);
+    if(!inputElValue) return;
+
+    difficultyEl.disabled = true;
+
+    if(attempts === 0) {
+        hintEl.textContent = "You Lose!";
+        hintEl.style.color = "red";
+        inputEl.disabled = true;
+        submitEl.disabled = true;
+        hiddenEl.textContent = randomNumber;
+    }
+
+    if(inputElValue > randomNumber) {
+        hintEl.textContent = "Too high!";
         inputEl.value = "";
-        return;
+        attemptsEl.textContent = attempts;
+
     }
-    else if(inputValue < min) {
-        alert(`You can't enter a value lower than ${min}`);
+
+    if(inputElValue < randomNumber && attempts > 0){
+        hintEl.textContent = "Too low!";
         inputEl.value = "";
-        return;
+        attemptsEl.textContent = attempts;
     }
 
-    if(inputValue > randomNumber) {
-        alert("You entered a greater number! Keep trying!");
-    }
-    else if(inputValue < randomNumber){
-        alert("You entered a lower number! Keep trying!");
-    }
-    else if(inputValue === randomNumber) {
+    if(inputElValue === randomNumber) {
+        hintEl.textContent = "You won!";
+        hintEl.style.color = "green";
+        inputEl.disabled = true;
+        submitEl.disabled = true;
+        hiddenEl.textContent = randomNumber;
+        
 
-        strongEl.innerText = randomNumber;
-        spanEl.innerText = `Attempts: ${attempts}`;
-        alert("You won!");
-
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
+        if(difficulty === "easy" && attempts > score[0]){
+            score[0] = attempts;
+            highScoreEl.textContent = score[0];
+        }
+        else if(difficulty === "medium" && attempts > score[1]){
+            score[1] = attempts;
+            highScoreEl.textContent = score[1];
+        }
+        else if(difficulty === "hard" && attempts > score[2]){
+            score[2] = attempts;
+            highScoreEl.textContent = score[2];
+        }
     }
+}
 
+
+
+againBtnEl.addEventListener("click", () => {
+    randomNumber =  Math.floor(Math.random() * (max - min) + min);
+    difficultyEl.disabled = false;
+    difficultyEl.value = "easy";
+    inputEl.disabled = false;
+    submitEl.disabled = false;
+    hiddenEl.textContent = "?";
     inputEl.value = "";
-    
+    hintEl.textContent = "Start guessing...";
+    hintEl.style.color = "white";
+
+    attempts = 10;
+    attemptsEl.textContent = attempts;
+    betweenEl.textContent = "between 1 - 50";
 })

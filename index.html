@@ -8,20 +8,41 @@
 </head>
 <body>
     
-    <h1>Guess The Number and win!</h1>
+    <header>
+        <button class="againBtn" >Again?</button>
+        <h1>Guess my number!</h1>
+        <p class="between" >between 1 - 50</p>
+    </header>
 
     <main>
 
-        <div class="info" >
-            <p>This is the randon number: <strong>?</strong></p>
-            <span></span>
-        </div>
+        <div class="hidden" >?</div>
 
-        <form>
-            <label for="guess">Enter your guess</label>
-            <input id="guess" type="number"  placeholder="ex: 50" required>
-            <button>Guess</button>
-        </form>
+        <div class="mainContainer" >
+            <div class="container" >
+                <form>
+                    <input type="number" placeholder="10" min="1" max="50" id="guess"> 
+                    <button class="submitBtn">Check!</button>
+                </form>
+            </div>
+    
+    
+            <div class="containerTwo" >
+                <p class="hint" >Start guessing...</p>
+                
+
+                <div>
+                    <p>Attempts: <span class="attempts" >10</span></p>
+                    <p>Highscore: <span class="highscore">0</span></p>
+
+                    <select name="difficulty" id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
     </main>
 
